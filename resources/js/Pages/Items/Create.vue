@@ -41,8 +41,8 @@ const storeItem = () => {
                                                     <label
                                                         for="name"
                                                         class="leading-7 text-sm text-gray-600"
-                                                        >商品名</label
-                                                    >
+                                                        >商品名
+                                                    </label>
                                                     <input
                                                         type="text"
                                                         id="name"
@@ -58,8 +58,8 @@ const storeItem = () => {
                                                     <label
                                                         for="memo"
                                                         class="leading-7 text-sm text-gray-600"
-                                                        >メモ</label
-                                                    >
+                                                        >メモ
+                                                    </label>
                                                     <textarea
                                                         id="memo"
                                                         name="memo"

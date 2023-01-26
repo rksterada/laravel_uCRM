@@ -1,20 +1,28 @@
 <script setup>
+import { onMounted, ref } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/inertia-vue3";
 import FlashMessage from "@/Components/FlashMessage.vue";
+import Pagination from "@/Components/Pagination.vue";
+import { Inertia } from "@inertiajs/inertia";
+import dayjs from "dayjs";
 
-defineProps({
-    items: Array,
+const props = defineProps({
+    orders: Object,
+});
+
+onMounted(() => {
+    console.log(props.orders.data);
 });
 </script>
 
 <template>
-    <Head title="商品一覧" />
+    <Head title="購買履歴" />
 
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                商品一覧
+                購買履歴
             </h2>
         </template>
 
@@ -25,16 +33,24 @@ defineProps({
                         <section class="text-gray-600 body-font">
                             <div class="container px-5 py-8 mx-auto">
                                 <FlashMessage />
-                                <div
+                                <!-- <div
                                     class="flex pl-4 my-4 lg:w-2/3 w-full mx-auto"
                                 >
-                                    <Link
-                                        as:buuton
-                                        :href="route('items.create')"
-                                        class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded"
-                                        >商品登録
-                                    </Link>
-                                </div>
+                                    <div>
+                                        <input
+                                            type="text"
+                                            name="search"
+                                            v-model="search"
+                                            class="bg-opacity-50 rounded border border-gray-300 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out"
+                                        />
+                                        <button
+                                            class="ml-4 text-white bg-blue-500 border-0 py-2 px-4 focus:outline-none hover:bg-blue-600 rounded"
+                                            @click="searchCustomers"
+                                        >
+                                            検索
+                                        </button>
+                                    </div>
+                                </div> -->
                                 <div
                                     class="lg:w-2/3 w-full mx-auto overflow-auto"
                                 >
@@ -51,12 +67,12 @@ defineProps({
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
                                                 >
-                                                    商品名
+                                                    氏名
                                                 </th>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
                                                 >
-                                                    価格
+                                                    合計金額
                                                 </th>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
@@ -65,59 +81,46 @@ defineProps({
                                                 </th>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100"
-                                                ></th>
+                                                >
+                                                    購入日
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr
-                                                v-for="item in items"
-                                                :key="item.id"
+                                                v-for="order in props.orders
+                                                    .data"
+                                                :key="order.id"
                                             >
                                                 <td class="border-b-2 border-gray-200 px-4 py-3">
-                                                    {{ item.id }}
-                                                </td>
-                                                <td class="border-b-2 border-gray-200 px-4 py-3">
-                                                    {{ item.name }}
-                                                </td>
-                                                <td class="border-b-2 border-gray-200 px-4 py-3">
-                                                    {{ item.price.toLocaleString() }} 円
-                                                </td>
-                                                <td class="border-b-2 border-gray-200 px-4 py-3">
-                                                    <span
-                                                        v-if="
-                                                            item.is_selling ===
-                                                            1
-                                                        "
-                                                        >販売中</span
-                                                    >
-                                                    <span
-                                                        v-if="
-                                                            item.is_selling ===
-                                                            0
-                                                        "
-                                                        >停止中</span
-                                                    >
-                                                </td>
-                                                <td class="border-b-2 border-gray-200">
                                                     <Link
-                                                        as="button"
-                                                        :href="
-                                                            route(
-                                                                'items.show',
-                                                                {
-                                                                    item: item.id,
-                                                                }
-                                                            )
-                                                        "
-                                                        class="text-white bg-blue-400 border-0 py-1 px-2 focus:outline-none hover:bg-blue-500 rounded"
-                                                        >詳細
+                                                        as="button" 
+                                                        :href="route('purchases.show',{purchase: order.id,})"
+                                                        class="text-blue-400"
+                                                        > {{ order.id }}
                                                     </Link>
+                                                </td>
+                                                <td class="border-b-2 border-gray-200 px-4 py-3">
+                                                    {{ order.customer_name }}
+                                                </td>
+                                                <td class="border-b-2 border-gray-200 px-4 py-3">
+                                                    {{ Number(order.total).toLocaleString() }} 円
+                                                </td>
+                                                <td class="border-b-2 border-gray-200 px-4 py-3">
+                                                    {{ order.status }}
+                                                </td>
+                                                <td class="border-b-2 border-gray-200 px-4 py-3">
+                                                    {{ dayjs(order.created_at).format('YYYY/MM/DD HH:mm:ss') }}
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+                            <Pagination
+                                class="mt-6 flex justify-center"
+                                :links="props.orders.links"
+                            ></Pagination>
                         </section>
                     </div>
                 </div>
